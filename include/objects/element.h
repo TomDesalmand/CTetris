@@ -21,3 +21,5 @@ void appendTetrominoElements(struct Element** elementList, struct Element** tetr
 void freeElementList(struct Element** elementList);
 bool checkElementExist(struct Element* elementList, int x, int y);
 void deleteRow(struct Element** elementList, int y);
+void moveRowsDown(struct Element** elementList, int y);
+void checkRow(struct GUI* gui, struct Element** elementList);

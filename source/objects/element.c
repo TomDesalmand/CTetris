@@ -3,6 +3,7 @@
 
 // STD include //
 #include <ncurses.h>
+#include <stdbool.h>
 #include <stdlib.h>
 
 struct Element* createElement(int x, int y, int color) {
@@ -21,7 +22,7 @@ void displayElementList(struct GUI* gui, struct Element* elementList) {
     struct Element* tmp = elementList;
     while (tmp != NULL) {
         attron(COLOR_PAIR(tmp->color));
-        mvaddch(gui->windowHeight / 2 - gui->mapHeight / 2 + tmp->y, gui->windowWidth / 2 - 1 + tmp->x, '*');
+        mvaddch(gui->windowHeight / 2 - gui->mapHeight / 2 + tmp->y, gui->windowWidth / 2 - 1 + tmp->x, '+');
         attroff(COLOR_PAIR(tmp->color));
         tmp = tmp->next;
     }
@@ -107,6 +108,37 @@ void deleteRow(struct Element** elementList, int y) {
         } else {
             previous = current;
             current = current->next;
+        }
+    }
+}
+
+void moveRowsDown(struct Element** elementList, int y) {
+    struct Element* tmp = (*elementList);
+    while (tmp != NULL) {
+        // Move rows above the deleted row down by 1 (increase y)
+        if (tmp->y < y) {
+            tmp->y++;
+        }
+        tmp = tmp->next;
+    }
+}
+
+void checkRow(struct GUI* gui, struct Element** elementList) {
+    int leftBound = 1 - (gui->mapWidth / 2);
+    int rightBound = 1 + (gui->mapWidth / 2);
+    for (int y = gui->mapHeight - 1; y >= 0; y--) {
+        bool shouldDeleteRow = true;
+        for (int x = leftBound; x <= rightBound; x++) {
+            if (!checkElementExist((*elementList), x, y)) {
+                shouldDeleteRow = false;
+                break;
+            }
+        }
+        if (shouldDeleteRow) {
+            deleteRow(&(*elementList), y);
+            moveRowsDown(&(*elementList), y);
+            // Re-check the same y after shifting above rows down
+            y++;
         }
     }
 }

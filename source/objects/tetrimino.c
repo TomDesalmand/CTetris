@@ -38,7 +38,7 @@ void createTetriminoFromFile(struct Tetrimino** tetrimino, const char* asset_pat
             max_cols = (int)line_len;
         }
         for (size_t charaterPosition = 0; buffer[charaterPosition]; ++charaterPosition) {
-            if (buffer[charaterPosition] == '*') {
+            if (buffer[charaterPosition] == '+') {
                 struct Element *element = createElement((int)charaterPosition, row, color);
                 if (!element) {
                     freeTetrimino(&(*tetrimino));
@@ -173,30 +173,21 @@ void freeTetrimino(struct Tetrimino** tetrimino) {
     (*tetrimino) = NULL;
 }
 
-void createHeroTetrimino(struct Tetrimino** tetrimino, int color) {
-    createTetriminoFromFile(&(*tetrimino), "assets/hero.tetrimino", color);
+void checkPlaceTetrimino(struct GUI* gui, struct Element** elementList, struct Tetrimino** tetrimino) {
+    struct Element* tmp = (*tetrimino)->elementList;
+    while (tmp != NULL) {
+        if (tmp->y + 1 == gui->mapHeight || checkElementExist((*elementList), tmp->x, tmp->y + 1)) {
+            appendTetrominoElements(&(*elementList), &(*tetrimino)->elementList);
+            createRandomTetrimino(&(*tetrimino));
+            return;
+        }
+        tmp = tmp->next;
+    }
 }
 
-void createSmashBoyTetrimino(struct Tetrimino** tetrimino, int color) {
-    createTetriminoFromFile(&(*tetrimino), "assets/smashboy.tetrimino", color);
-}
-
-void createClevelandTetrimino(struct Tetrimino** tetrimino, int color) {
-    createTetriminoFromFile(&(*tetrimino), "assets/cleveland.tetrimino", color);
-}
-
-void createRhodeIslandTetrimino(struct Tetrimino** tetrimino, int color) {
-    createTetriminoFromFile(&(*tetrimino), "assets/rhode_island.tetrimino", color);
-}
-
-void createBlueRickytetrimino(struct Tetrimino** tetrimino, int color) {
-    createTetriminoFromFile(&(*tetrimino), "assets/blue_rickytetrimino.tetrimino", color);
-}
-
-void createOrangeRickytetrimino(struct Tetrimino** tetrimino, int color) {
-    createTetriminoFromFile(&(*tetrimino), "assets/orange_rickytetrimino.tetrimino", color);
-}
-
-void createTeeweeTetrimino(struct Tetrimino** tetrimino, int color) {
-    createTetriminoFromFile(&(*tetrimino), "assets/teewee.tetrimino", color);
+void createRandomTetrimino(struct Tetrimino** tetrimino) {
+    size_t count = sizeof(PIECES) / sizeof(PIECES[0]);
+    uint32_t index = arc4random_uniform((uint32_t)count);
+    const PieceDef def = PIECES[index];
+    createTetriminoFromFile(&(*tetrimino), def.asset, def.color_pair);
 }

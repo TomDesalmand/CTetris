@@ -68,12 +68,15 @@ bool handleInputs(struct Application** application) {
 }
 
 void run(struct Application** application) {
-    createHeroTetrimino(&(*application)->tetrimino, 2);
+    createRandomTetrimino(&(*application)->tetrimino);
     getWindowSize((*application)->gui);
     while (!handleInputs(&(*application))) {
+        checkRow((*application)->gui, &(*application)->elementList);
+        checkPlaceTetrimino((*application)->gui, &(*application)->elementList, &(*application)->tetrimino);
         erase();
         displayMap((*application)->gui);
         displayElementList((*application)->gui, (*application)->tetrimino->elementList);
+        displayElementList((*application)->gui, (*application)->elementList);
         wnoutrefresh(stdscr);
         doupdate();
     }

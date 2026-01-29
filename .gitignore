@@ -1,3 +1,4 @@
 project
 *.o
 *.json
+.cache
