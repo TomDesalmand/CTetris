@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <locale.h> 
+#include <sys/time.h>
 
 void initApplication(void) {
     setlocale(LC_ALL, "");
@@ -70,6 +71,12 @@ bool handleInputs(struct Application** application) {
 void run(struct Application** application) {
     createRandomTetrimino(&(*application)->tetrimino);
     getWindowSize((*application)->gui);
+
+    struct timeval last, now;
+    gettimeofday(&last, NULL);
+    int frames = 0;
+    double fps = 0.0;
+
     while (!handleInputs(&(*application))) {
         checkRow((*application)->gui, &(*application)->elementList);
         checkPlaceTetrimino((*application)->gui, &(*application)->elementList, &(*application)->tetrimino);
@@ -77,6 +84,20 @@ void run(struct Application** application) {
         displayMap((*application)->gui);
         displayElementList((*application)->gui, (*application)->tetrimino->elementList);
         displayElementList((*application)->gui, (*application)->elementList);
+
+        // FPS calculation
+        frames++;
+        gettimeofday(&now, NULL);
+        double elapsed = (now.tv_sec - last.tv_sec) + (now.tv_usec - last.tv_usec) / 1000000.0;
+        if (elapsed >= 1.0) {
+            fps = frames / elapsed;
+            frames = 0;
+            last = now;
+        }
+
+        // Display FPS (top-left corner)
+        mvprintw(0, 0, "FPS: %.2f", fps);
+
         wnoutrefresh(stdscr);
         doupdate();
     }
