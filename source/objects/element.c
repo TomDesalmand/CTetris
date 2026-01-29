@@ -5,6 +5,8 @@
 #include <ncurses.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <wchar.h>
+
 
 struct Element* createElement(int x, int y, int color) {
     struct Element* new = malloc(sizeof(struct Element));
@@ -22,7 +24,7 @@ void displayElementList(struct GUI* gui, struct Element* elementList) {
     struct Element* tmp = elementList;
     while (tmp != NULL) {
         attron(COLOR_PAIR(tmp->color));
-        mvaddch(gui->windowHeight / 2 - gui->mapHeight / 2 + tmp->y, gui->windowWidth / 2 - 1 + tmp->x, '+');
+        mvaddstr(gui->windowHeight / 2 - gui->mapHeight / 2 + tmp->y, gui->windowWidth / 2 - 1 + tmp->x, "■");
         attroff(COLOR_PAIR(tmp->color));
         tmp = tmp->next;
     }

@@ -2,7 +2,6 @@
 #include "../../include/application/application.h"
 
 // STD include //
-#include <ncurses.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <locale.h> 
