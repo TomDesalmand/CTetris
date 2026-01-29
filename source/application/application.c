@@ -91,7 +91,6 @@ void run(struct Application** application) {
 
     while (!handleInputs(&(*application))) {
         frames++;
-        checkRow((*application)->gui, &(*application)->elementList);
         checkPlaceTetrimino((*application)->gui, &(*application)->elementList, &(*application)->tetrimino);
         erase();
         displayMap((*application)->gui);

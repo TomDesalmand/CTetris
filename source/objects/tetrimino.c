@@ -186,6 +186,7 @@ void checkPlaceTetrimino(struct GUI* gui, struct Element** elementList, struct T
     while (tmp != NULL) {
         if (tmp->y + 1 == gui->mapHeight || checkElementExist((*elementList), tmp->x, tmp->y + 1)) {
             appendTetrominoElements(&(*elementList), &(*tetrimino)->elementList);
+            checkRow(&(*gui), &(*elementList));
             createRandomTetrimino(&(*tetrimino));
             return;
         }
