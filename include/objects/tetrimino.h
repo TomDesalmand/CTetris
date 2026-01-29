@@ -29,6 +29,6 @@ static const PieceDef PIECES[] = {
 void checkPlaceTetrimino(struct GUI* gui, struct Element** elementList, struct Tetrimino** tetrimino);
 void createTetriminoFromFile(struct Tetrimino** tetrimino, const char* asset_path, int color);
 void createRandomTetrimino(struct Tetrimino** tetrimino);
-void moveTetrimino(struct GUI* gui, struct Tetrimino *tetrimino, int x, int y);
-void rotateTetrimino(struct GUI* gui,struct Tetrimino* tetrimino);
+void moveTetrimino(struct GUI* gui, struct Element* elementList, struct Tetrimino *tetrimino, int x, int y);
+void rotateTetrimino(struct GUI* gui, struct Element* elementList, struct Tetrimino* tetrimino);
 void freeTetrimino(struct Tetrimino** tetrimino);

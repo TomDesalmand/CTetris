@@ -71,7 +71,7 @@ static void getMinimumXY(const struct Tetrimino* tetrimino, int* min_x, int* min
     }
 }
 
-static int canTranslate(const struct GUI* gui, const struct Tetrimino* tetrimino, int dx, int dy) {
+static int canTranslate(const struct GUI* gui, const struct Element* elementList, const struct Tetrimino* tetrimino, int dx, int dy) {
     int leftBound, rightBound;
     getBounds(gui, &leftBound, &rightBound);
     struct Element* tmp = tetrimino->elementList;
@@ -79,6 +79,10 @@ static int canTranslate(const struct GUI* gui, const struct Tetrimino* tetrimino
         int nx = tmp->x + dx;
         int ny = tmp->y + dy;
         if (nx < leftBound || nx > rightBound || ny < 0 || ny >= gui->mapHeight) {
+            return 0;
+        }
+        // Prevent moving into existing elements on the board
+        if (checkElementExist((struct Element*)elementList, nx, ny)) {
             return 0;
         }
         tmp = tmp->next;
@@ -95,7 +99,7 @@ static void applyTranslate(struct Tetrimino* tetrimino, int dx, int dy) {
     }
 }
 
-static int computeRotationCheck(const struct GUI* gui, const struct Tetrimino* tetrimino, int min_x, int min_y, int old_w, int* out_dy) {
+static int computeRotationCheck(const struct GUI* gui, const struct Element* elementList, const struct Tetrimino* tetrimino, int min_x, int min_y, int old_w, int* out_dy) {
     int rotated_min_y = INT_MAX;
     struct Element* tmp = tetrimino->elementList;
     while (tmp != NULL) {
@@ -118,6 +122,10 @@ static int computeRotationCheck(const struct GUI* gui, const struct Tetrimino* t
         if (rx < leftBound || rx > rightBound || ry < 0 || ry >= gui->mapHeight) {
             return 0;
         }
+        // Prevent rotating into existing elements on the board
+        if (checkElementExist((struct Element*)elementList, rx, ry)) {
+            return 0;
+        }
         tmp = tmp->next;
     }
     *out_dy = dy;
@@ -137,7 +145,7 @@ static void applyRotation(struct Tetrimino* tetrimino, int min_x, int min_y, int
     }
 }
 
-void rotateTetrimino(struct GUI* gui,struct Tetrimino* tetrimino) {
+void rotateTetrimino(struct GUI* gui, struct Element* elementList, struct Tetrimino* tetrimino) {
     if (!tetrimino || !gui) {
         return;
     }
@@ -146,7 +154,7 @@ void rotateTetrimino(struct GUI* gui,struct Tetrimino* tetrimino) {
     int old_w = tetrimino->width;
     int old_h = tetrimino->height;
     int dy = 0;
-    if (!computeRotationCheck(gui, tetrimino, min_x, min_y, old_w, &dy)) {
+    if (!computeRotationCheck(gui, elementList, tetrimino, min_x, min_y, old_w, &dy)) {
         return;
     }
     applyRotation(tetrimino, min_x, min_y, old_w, dy);
@@ -154,11 +162,11 @@ void rotateTetrimino(struct GUI* gui,struct Tetrimino* tetrimino) {
     tetrimino->height = old_w;
 }
 
-void moveTetrimino(struct GUI* gui, struct Tetrimino *tetrimino, int x, int y) {
+void moveTetrimino(struct GUI* gui, struct Element* elementList, struct Tetrimino *tetrimino, int x, int y) {
     if (!tetrimino || !gui) {
         return;
     }
-    if (!canTranslate(gui, tetrimino, x, y)) {
+    if (!canTranslate(gui, elementList, tetrimino, x, y)) {
         return;
     }
     applyTranslate(tetrimino, x, y);

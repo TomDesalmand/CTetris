@@ -53,51 +53,51 @@ bool handleInputs(struct Application** application) {
     if (input == QUIT) {
         return true;
     } if (input == ROTATE) {
-        rotateTetrimino((*application)->gui,(*application)->tetrimino);
+        rotateTetrimino((*application)->gui, (*application)->elementList, (*application)->tetrimino);
     } if (input == LEFT) {
-        moveTetrimino((*application)->gui, (*application)->tetrimino, -1, 0);
+        moveTetrimino((*application)->gui, (*application)->elementList, (*application)->tetrimino, -1, 0);
     } if (input == RIGHT) {
-        moveTetrimino((*application)->gui, (*application)->tetrimino, 1, 0);
+        moveTetrimino((*application)->gui, (*application)->elementList, (*application)->tetrimino, 1, 0);
     } if (input == UP) {
-        moveTetrimino((*application)->gui, (*application)->tetrimino, 0, -1);
+        moveTetrimino((*application)->gui, (*application)->elementList, (*application)->tetrimino, 0, -1);
     } if (input == DOWN) {
-        moveTetrimino((*application)->gui, (*application)->tetrimino, 0, 1);
+        moveTetrimino((*application)->gui, (*application)->elementList, (*application)->tetrimino, 0, 1);
     } if (input == KEY_RESIZE) {
         getWindowSize((*application)->gui);
     }
     return false;
 }
 
+void displayFPS(int* frames, struct timeval* last) {
+    static double last_fps = 0.0;
+    struct timeval now;
+    gettimeofday(&now, NULL);
+    double elapsed = (double)(now.tv_sec - last->tv_sec) + (now.tv_usec - last->tv_usec) / 1000000.0;
+    if (elapsed >= 1.f) {
+        last_fps = (*frames) / elapsed;
+        *frames = 0;
+        *last = now;
+    }
+    mvprintw(0, 0, "FPS: %.2f", last_fps);
+}
+
 void run(struct Application** application) {
     createRandomTetrimino(&(*application)->tetrimino);
     getWindowSize((*application)->gui);
 
-    struct timeval last, now;
+    struct timeval last;
     gettimeofday(&last, NULL);
     int frames = 0;
-    double fps = 0.0;
 
     while (!handleInputs(&(*application))) {
+        frames++;
         checkRow((*application)->gui, &(*application)->elementList);
         checkPlaceTetrimino((*application)->gui, &(*application)->elementList, &(*application)->tetrimino);
         erase();
         displayMap((*application)->gui);
         displayElementList((*application)->gui, (*application)->tetrimino->elementList);
         displayElementList((*application)->gui, (*application)->elementList);
-
-        // FPS calculation
-        frames++;
-        gettimeofday(&now, NULL);
-        double elapsed = (now.tv_sec - last.tv_sec) + (now.tv_usec - last.tv_usec) / 1000000.0;
-        if (elapsed >= 1.0) {
-            fps = frames / elapsed;
-            frames = 0;
-            last = now;
-        }
-
-        // Display FPS (top-left corner)
-        mvprintw(0, 0, "FPS: %.2f", fps);
-
+        displayFPS(&frames, &last);
         wnoutrefresh(stdscr);
         doupdate();
     }
