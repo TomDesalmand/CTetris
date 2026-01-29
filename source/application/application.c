@@ -40,31 +40,37 @@ bool initApplicationStructures(struct Application** application) {
     (*application)->tetrimino->elementList = NULL;
     (*application)->tetrimino->color = 0;
     (*application)->elementList = NULL;
+    (*application)->gui->mapWidth = 15;
+    (*application)->gui->mapHeight = 25;
     (*application)->gui->level = 0;
     (*application)->gui->score = 0;
     return true;
 }
 
+bool handleInputs(struct Application** application) {
+    int input = getch();
+    if (input == QUIT) {
+        return true;
+    } if (input == ROTATE) {
+        rotateTetrimino((*application)->gui,(*application)->tetrimino);
+    } if (input == LEFT) {
+        moveTetrimino((*application)->gui, (*application)->tetrimino, -1, 0);
+    } if (input == RIGHT) {
+        moveTetrimino((*application)->gui, (*application)->tetrimino, 1, 0);
+    } if (input == UP) {
+        moveTetrimino((*application)->gui, (*application)->tetrimino, 0, -1);
+    } if (input == DOWN) {
+        moveTetrimino((*application)->gui, (*application)->tetrimino, 0, 1);
+    } if (input == KEY_RESIZE) {
+        getWindowSize((*application)->gui);
+    }
+    return false;
+}
+
 void run(struct Application** application) {
-    createTeeweeTetrimino(&(*application)->tetrimino, 2);
+    createHeroTetrimino(&(*application)->tetrimino, 2);
     getWindowSize((*application)->gui);
-    while (true) {
-        int input = getch();
-        if (input == QUIT) {
-            break;
-        } if (input == ROTATE) {
-            rotateTetrimino((*application)->tetrimino);
-        } if (input == LEFT) {
-            moveTetrimino((*application)->tetrimino, -1, 0);
-        } if (input == RIGHT) {
-            moveTetrimino((*application)->tetrimino, 1, 0);
-        } if (input == UP) {
-            moveTetrimino((*application)->tetrimino, 0, -1);
-        } if (input == DOWN) {
-            moveTetrimino((*application)->tetrimino, 0, 1);
-        } if (input == KEY_RESIZE) {
-            getWindowSize((*application)->gui);
-        }
+    while (!handleInputs(&(*application))) {
         erase();
         displayMap((*application)->gui);
         displayElementList((*application)->gui, (*application)->tetrimino->elementList);
@@ -90,6 +96,7 @@ void endApplication(void) {
 void freeApplicationStructures(struct Application** application) {
     freeElementList(&(*application)->elementList);
     freeTetrimino(&(*application)->tetrimino);
+    free((*application)->gui);
     free(*application);
     *application = NULL;
 }

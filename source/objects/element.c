@@ -1,5 +1,4 @@
 // Header files include //
-#include "../../include/application/application.h"
 #include "../../include/objects/element.h"
 
 // STD include //
@@ -22,7 +21,7 @@ void displayElementList(struct GUI* gui, struct Element* elementList) {
     struct Element* tmp = elementList;
     while (tmp != NULL) {
         attron(COLOR_PAIR(tmp->color));
-        mvaddch(gui->windowHeight / 2 - HEIGHT / 2 + tmp->y, gui->windowWidth / 2 - 1 + tmp->x, '*');
+        mvaddch(gui->windowHeight / 2 - gui->mapHeight / 2 + tmp->y, gui->windowWidth / 2 - 1 + tmp->x, '*');
         attroff(COLOR_PAIR(tmp->color));
         tmp = tmp->next;
     }

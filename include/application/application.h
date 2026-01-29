@@ -20,10 +20,6 @@
 // GUI keys //
 #define QUIT 113 // q //
 
-// GUI sizes //
-#define HEIGHT 25
-#define WIDTH 15
-
 struct Application {
     struct GUI* gui;
     struct Element* elementList;
@@ -34,6 +30,7 @@ struct Application {
 void initApplication(void);
 bool initApplicationStructures(struct Application** application);
 void initColor(void);
+bool handleInputs(struct Application** application);
 void run(struct Application** application);
 void endApplication(void);
 void freeApplicationStructures(struct Application** application);

@@ -3,6 +3,8 @@
 struct GUI {
     int windowWidth;
     int windowHeight;
+    int mapWidth;
+    int mapHeight;
     int score;
     int level;
 };

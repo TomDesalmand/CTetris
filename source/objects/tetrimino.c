@@ -2,6 +2,7 @@
 #include "../../include/objects/tetrimino.h"
 
 // STD include //
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -54,6 +55,124 @@ void createTetriminoFromFile(struct Tetrimino** tetrimino, const char* asset_pat
     fclose(file);
 }
 
+static void get_bounds(const struct GUI* gui, int* leftBound, int* rightBound) {
+    *leftBound = 1 - (gui->mapWidth / 2);
+    *rightBound = 1 + (gui->mapWidth / 2);
+}
+
+static void get_min_xy(const struct Tetrimino* tetrimino, int* min_x, int* min_y) {
+    struct Element* tmp = tetrimino->elementList;
+    *min_x = tmp->x;
+    *min_y = tmp->y;
+    while (tmp != NULL) {
+        if (tmp->x < *min_x) *min_x = tmp->x;
+        if (tmp->y < *min_y) *min_y = tmp->y;
+        tmp = tmp->next;
+    }
+}
+
+static int can_translate(const struct GUI* gui, const struct Tetrimino* tetrimino, int dx, int dy) {
+    int leftBound, rightBound;
+    get_bounds(gui, &leftBound, &rightBound);
+    struct Element* tmp = tetrimino->elementList;
+    while (tmp != NULL) {
+        int nx = tmp->x + dx;
+        int ny = tmp->y + dy;
+        if (nx < leftBound || nx > rightBound || ny < 0 || ny >= gui->mapHeight) {
+            return 0;
+        }
+        tmp = tmp->next;
+    }
+    return 1;
+}
+
+static void apply_translate(struct Tetrimino* tetrimino, int dx, int dy) {
+    struct Element* tmp = tetrimino->elementList;
+    while (tmp != NULL) {
+        tmp->x += dx;
+        tmp->y += dy;
+        tmp = tmp->next;
+    }
+}
+
+static int compute_rotation_dy_and_check(const struct GUI* gui, const struct Tetrimino* tetrimino, int min_x, int min_y, int old_w, int* out_dy) {
+    int rotated_min_y = INT_MAX;
+    struct Element* tmp = tetrimino->elementList;
+    while (tmp != NULL) {
+        int local_x = tmp->x - min_x;
+        int local_y = tmp->y - min_y;
+        int new_local_y = old_w - 1 - local_x;
+        int ry = min_y + new_local_y;
+        if (ry < rotated_min_y) rotated_min_y = ry;
+        tmp = tmp->next;
+    }
+    int dy = min_y - rotated_min_y;
+    int leftBound, rightBound;
+    get_bounds(gui, &leftBound, &rightBound);
+    tmp = tetrimino->elementList;
+    while (tmp != NULL) {
+        int local_x = tmp->x - min_x;
+        int local_y = tmp->y - min_y;
+        int rx = min_x + local_y;
+        int ry = min_y + old_w - 1 - local_x + dy;
+        if (rx < leftBound || rx > rightBound || ry < 0 || ry >= gui->mapHeight) {
+            return 0;
+        }
+        tmp = tmp->next;
+    }
+    *out_dy = dy;
+    return 1;
+}
+
+static void apply_rotation(struct Tetrimino* tetrimino, int min_x, int min_y, int old_w, int dy) {
+    struct Element* tmp = tetrimino->elementList;
+    while (tmp != NULL) {
+        int local_x = tmp->x - min_x;
+        int local_y = tmp->y - min_y;
+        int new_local_x = local_y;
+        int new_local_y = old_w - 1 - local_x;
+        tmp->x = min_x + new_local_x;
+        tmp->y = min_y + new_local_y + dy;
+        tmp = tmp->next;
+    }
+}
+
+void rotateTetrimino(struct GUI* gui,struct Tetrimino* tetrimino) {
+    if (!tetrimino || !gui) {
+        return;
+    }
+    int min_x, min_y;
+    get_min_xy(tetrimino, &min_x, &min_y);
+    int old_w = tetrimino->width;
+    int old_h = tetrimino->height;
+    int dy = 0;
+    if (!compute_rotation_dy_and_check(gui, tetrimino, min_x, min_y, old_w, &dy)) {
+        return;
+    }
+    apply_rotation(tetrimino, min_x, min_y, old_w, dy);
+    tetrimino->width = old_h;
+    tetrimino->height = old_w;
+}
+
+void moveTetrimino(struct GUI* gui, struct Tetrimino *tetrimino, int x, int y) {
+    if (!tetrimino || !gui) {
+        return;
+    }
+    if (!can_translate(gui, tetrimino, x, y)) {
+        return;
+    }
+    apply_translate(tetrimino, x, y);
+}
+
+void freeTetrimino(struct Tetrimino** tetrimino) {
+    if (!(*tetrimino)) {
+        return;
+    }
+    freeElementList(&(*tetrimino)->elementList);
+    free(*tetrimino);
+    (*tetrimino) = NULL;
+}
+
 void createHeroTetrimino(struct Tetrimino** tetrimino, int color) {
     createTetriminoFromFile(&(*tetrimino), "assets/hero.tetrimino", color);
 }
@@ -80,62 +199,4 @@ void createOrangeRickytetrimino(struct Tetrimino** tetrimino, int color) {
 
 void createTeeweeTetrimino(struct Tetrimino** tetrimino, int color) {
     createTetriminoFromFile(&(*tetrimino), "assets/teewee.tetrimino", color);
-}
-
-void rotateTetrimino(struct Tetrimino* tetrimino) {
-    if (!tetrimino || !tetrimino->elementList) {
-        return;
-    }
-    // Get the top left coordinates of the tetrimino.
-    int min_x = tetrimino->elementList->x;
-    int min_y = tetrimino->elementList->y;
-    struct Element* tmp = tetrimino->elementList;
-    while (tmp != NULL) {
-        if (tmp->x < min_x) {
-            min_x = tmp->x;
-        }
-        if (tmp->y < min_y) { 
-            min_y = tmp->y;
-        }
-        tmp = tmp->next;
-    }
-    int old_size_x = tetrimino->width;
-    int old_size_y = tetrimino->height;
-    tmp = tetrimino->elementList;
-    while (tmp != NULL) {
-        // Convert to local coordinates (relative to top-left corner)
-        int local_x = tmp->x - min_x;
-        int local_y = tmp->y - min_y;
-        // 90 degree clockwise rotation: (x, y) -> (y, width-1-x)
-        int new_local_x = local_y;
-        int new_local_y = old_size_x - 1 - local_x;
-        // Convert back to absolute coordinates
-        tmp->x = min_x + new_local_x;
-        tmp->y = min_y + new_local_y;
-        tmp = tmp->next;
-    }
-    // Exchange both sizes to correspond to the new size of each.
-    tetrimino->width = old_size_y;
-    tetrimino->height = old_size_x;
-}
-
-void moveTetrimino(struct Tetrimino *tetrimino, int x, int y) {
-    if (!tetrimino) {
-        return;
-    }
-    struct Element* tmp = tetrimino->elementList;
-    while (tmp != NULL) {
-        tmp->x += x;
-        tmp->y += y;
-        tmp = tmp->next;
-    }
-}
-
-void freeTetrimino(struct Tetrimino** tetrimino) {
-    if (!(*tetrimino)) {
-        return;
-    }
-    freeElementList(&(*tetrimino)->elementList);
-    free(*tetrimino);
-    (*tetrimino) = NULL;
 }

@@ -19,8 +19,6 @@ void createRhodeIslandTetrimino(struct Tetrimino** tetrimino, int color);
 void createBlueRickytetrimino(struct Tetrimino** tetrimino, int color);
 void createOrangeRickytetrimino(struct Tetrimino** tetrimino, int color);
 void createTeeweeTetrimino(struct Tetrimino** tetrimino, int color);
-void moveTetrimino(struct Tetrimino* tetrimino, int x, int y);
-void rotateTetrimino(struct Tetrimino* tetrimino);
+void moveTetrimino(struct GUI* gui, struct Tetrimino *tetrimino, int x, int y);
+void rotateTetrimino(struct GUI* gui,struct Tetrimino* tetrimino);
 void freeTetrimino(struct Tetrimino** tetrimino);
-
-
