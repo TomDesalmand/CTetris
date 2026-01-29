@@ -29,18 +29,25 @@ void initColor(void) {
 }
 
 bool initApplicationStructures(struct Application** application) {
-    (*application)->elementList = NULL;
+    (*application)->gui = malloc(sizeof(struct GUI));
+    if (!(*application)->gui) {
+        return false;
+    }
     (*application)->tetrimino = malloc(sizeof(struct Tetrimino));
     if (!(*application)->tetrimino) {
         return false;
     }
     (*application)->tetrimino->elementList = NULL;
     (*application)->tetrimino->color = 0;
+    (*application)->elementList = NULL;
+    (*application)->gui->level = 0;
+    (*application)->gui->score = 0;
     return true;
 }
 
 void run(struct Application** application) {
-    createLightningTetrimino(&(*application)->tetrimino, 2);
+    createTeeweeTetrimino(&(*application)->tetrimino, 2);
+    getWindowSize((*application)->gui);
     while (true) {
         int input = getch();
         if (input == QUIT) {
@@ -55,10 +62,12 @@ void run(struct Application** application) {
             moveTetrimino((*application)->tetrimino, 0, -1);
         } if (input == DOWN) {
             moveTetrimino((*application)->tetrimino, 0, 1);
+        } if (input == KEY_RESIZE) {
+            getWindowSize((*application)->gui);
         }
         erase();
-        displayMap();
-        displayElementList((*application)->tetrimino->elementList);
+        displayMap((*application)->gui);
+        displayElementList((*application)->gui, (*application)->tetrimino->elementList);
         wnoutrefresh(stdscr);
         doupdate();
     }

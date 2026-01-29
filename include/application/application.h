@@ -3,6 +3,7 @@
 // Header files include //
 #include "../objects/element.h"
 #include "../objects/tetrimino.h"
+#include "../gui/gui.h"
 
 // NCURSE include //
 #include <ncurses.h>
@@ -24,6 +25,7 @@
 #define WIDTH 15
 
 struct Application {
+    struct GUI* gui;
     struct Element* elementList;
     struct Tetrimino* tetrimino;
 };
@@ -35,6 +37,3 @@ void initColor(void);
 void run(struct Application** application);
 void endApplication(void);
 void freeApplicationStructures(struct Application** application);
-
-// GUI
-void displayMap();

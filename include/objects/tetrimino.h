@@ -12,9 +12,13 @@ struct Tetrimino {
 };
 
 void createTetriminoFromFile(struct Tetrimino** tetrimino, const char* asset_path, int color);
-void createBarTetrimino(struct Tetrimino** tetrimino, int color);
-void createSquareTetrimino(struct Tetrimino** tetrimino, int color);
-void createLightningTetrimino(struct Tetrimino** tetrimino, int color);
+void createHeroTetrimino(struct Tetrimino** tetrimino, int color);
+void createSmashBoyTetrimino(struct Tetrimino** tetrimino, int color);
+void createClevelandTetrimino(struct Tetrimino** tetrimino, int color);
+void createRhodeIslandTetrimino(struct Tetrimino** tetrimino, int color);
+void createBlueRickytetrimino(struct Tetrimino** tetrimino, int color);
+void createOrangeRickytetrimino(struct Tetrimino** tetrimino, int color);
+void createTeeweeTetrimino(struct Tetrimino** tetrimino, int color);
 void moveTetrimino(struct Tetrimino* tetrimino, int x, int y);
 void rotateTetrimino(struct Tetrimino* tetrimino);
 void freeTetrimino(struct Tetrimino** tetrimino);

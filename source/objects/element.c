@@ -1,4 +1,5 @@
 // Header files include //
+#include "../../include/application/application.h"
 #include "../../include/objects/element.h"
 
 // STD include //
@@ -17,11 +18,11 @@ struct Element* createElement(int x, int y, int color) {
     return new;
 }
 
-void displayElementList(struct Element* elementList) {
+void displayElementList(struct GUI* gui, struct Element* elementList) {
     struct Element* tmp = elementList;
     while (tmp != NULL) {
         attron(COLOR_PAIR(tmp->color));
-        mvaddch(2 + tmp->y, 6 + tmp->x, '*');
+        mvaddch(gui->windowHeight / 2 - HEIGHT / 2 + tmp->y, gui->windowWidth / 2 - 1 + tmp->x, '*');
         attroff(COLOR_PAIR(tmp->color));
         tmp = tmp->next;
     }

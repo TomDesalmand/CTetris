@@ -54,16 +54,32 @@ void createTetriminoFromFile(struct Tetrimino** tetrimino, const char* asset_pat
     fclose(file);
 }
 
-void createBarTetrimino(struct Tetrimino** tetrimino, int color) {
-    createTetriminoFromFile(&(*tetrimino), "assets/bar.tetrimino", color);
+void createHeroTetrimino(struct Tetrimino** tetrimino, int color) {
+    createTetriminoFromFile(&(*tetrimino), "assets/hero.tetrimino", color);
 }
 
-void createSquareTetrimino(struct Tetrimino** tetrimino, int color) {
-    createTetriminoFromFile(&(*tetrimino), "assets/square.tetrimino", color);
+void createSmashBoyTetrimino(struct Tetrimino** tetrimino, int color) {
+    createTetriminoFromFile(&(*tetrimino), "assets/smashboy.tetrimino", color);
 }
 
-void createLightningTetrimino(struct Tetrimino** tetrimino, int color) {
-    createTetriminoFromFile(&(*tetrimino), "assets/lightning.tetrimino", color);
+void createClevelandTetrimino(struct Tetrimino** tetrimino, int color) {
+    createTetriminoFromFile(&(*tetrimino), "assets/cleveland.tetrimino", color);
+}
+
+void createRhodeIslandTetrimino(struct Tetrimino** tetrimino, int color) {
+    createTetriminoFromFile(&(*tetrimino), "assets/rhode_island.tetrimino", color);
+}
+
+void createBlueRickytetrimino(struct Tetrimino** tetrimino, int color) {
+    createTetriminoFromFile(&(*tetrimino), "assets/blue_rickytetrimino.tetrimino", color);
+}
+
+void createOrangeRickytetrimino(struct Tetrimino** tetrimino, int color) {
+    createTetriminoFromFile(&(*tetrimino), "assets/orange_rickytetrimino.tetrimino", color);
+}
+
+void createTeeweeTetrimino(struct Tetrimino** tetrimino, int color) {
+    createTetriminoFromFile(&(*tetrimino), "assets/teewee.tetrimino", color);
 }
 
 void rotateTetrimino(struct Tetrimino* tetrimino) {

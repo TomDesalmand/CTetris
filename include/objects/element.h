@@ -1,10 +1,12 @@
 #pragma once
 
+// Header files include //
+#include "../../include/gui/gui.h"
+
 // STD include //
 #include <stdbool.h>
 
 // This header defines a struct that will allow to access all the elements in the game.
-
 struct Element {
     int x;
     int y;
@@ -13,7 +15,7 @@ struct Element {
 };
 
 struct Element* createElement(int x, int y, int color);
-void displayElementList(struct Element* elementList);
+void displayElementList(struct GUI* gui, struct Element* elementList);
 void appendElement(struct Element** elementList, struct Element** newElement);
 void appendTetrominoElements(struct Element** elementList, struct Element** tetrominoElementList);
 void freeElementList(struct Element** elementList);
