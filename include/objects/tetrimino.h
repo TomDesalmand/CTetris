@@ -17,13 +17,13 @@ typedef struct {
 } PieceDef;
 
 static const PieceDef PIECES[] = {
-    { "assets/hero.tetrimino",         6 }, // I -> cyan
-    { "assets/smashboy.tetrimino",     1 }, // O -> yellow
-    { "assets/cleveland.tetrimino",    2 }, // Z -> red
-    { "assets/rhode_island.tetrimino", 3 }, // S -> green
-    { "assets/blue_ricky.tetrimino",   4 }, // J -> blue
-    { "assets/orange_ricky.tetrimino", 7 }, // L -> white (approximate orange)
-    { "assets/teewee.tetrimino",       5 }, // T -> magenta
+    { "assets/hero.tetrimino",         6 },
+    { "assets/smashboy.tetrimino",     1 },
+    { "assets/cleveland.tetrimino",    2 },
+    { "assets/rhode_island.tetrimino", 3 },
+    { "assets/blue_ricky.tetrimino",   4 },
+    { "assets/orange_ricky.tetrimino", 7 },
+    { "assets/teewee.tetrimino",       5 },
 };
 
 void checkPlaceTetrimino(struct GUI* gui, struct Element** elementList, struct Tetrimino** tetrimino);

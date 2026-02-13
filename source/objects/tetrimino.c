@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 
 void createTetriminoFromFile(struct Tetrimino** tetrimino, const char* asset_path, int color) {
     FILE *file; 
