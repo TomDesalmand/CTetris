@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <locale.h> 
+#include <math.h>
 #include <sys/time.h>
 
 void initApplication(void) {
@@ -40,10 +41,11 @@ bool initApplicationStructures(struct Application** application) {
     (*application)->tetrimino->elementList = NULL;
     (*application)->tetrimino->color = 0;
     (*application)->elementList = NULL;
-    (*application)->gui->mapWidth = 15;
-    (*application)->gui->mapHeight = 25;
+    (*application)->gui->mapWidth = 10;
+    (*application)->gui->mapHeight = 30;
     (*application)->gui->level = 0;
     (*application)->gui->score = 0;
+    (*application)->gui->level = 0;
     return true;
 }
 
@@ -53,13 +55,13 @@ bool handleInputs(struct Application** application) {
         return true;
     } if (input == ROTATE) {
         rotateTetrimino((*application)->gui, (*application)->elementList, (*application)->tetrimino);
-    } if (input == LEFT) {
+    } if (input == KEY_LEFT) {
         moveTetrimino((*application)->gui, (*application)->elementList, (*application)->tetrimino, -1, 0);
-    } if (input == RIGHT) {
+    } if (input == KEY_RIGHT) {
         moveTetrimino((*application)->gui, (*application)->elementList, (*application)->tetrimino, 1, 0);
-    } if (input == UP) {
+    } if (input == KEY_UP) {
         moveTetrimino((*application)->gui, (*application)->elementList, (*application)->tetrimino, 0, -1);
-    } if (input == DOWN) {
+    } if (input == KEY_DOWN) {
         moveTetrimino((*application)->gui, (*application)->elementList, (*application)->tetrimino, 0, 1);
     } if (input == KEY_RESIZE) {
         getWindowSize((*application)->gui);
@@ -67,7 +69,7 @@ bool handleInputs(struct Application** application) {
     return false;
 }
 
-void displayFPS(int* frames, struct timeval* last) {
+void display(struct Application** application, int* frames, struct timeval* last) {
     static double last_fps = 0.0;
     struct timeval now;
     gettimeofday(&now, NULL);
@@ -76,26 +78,29 @@ void displayFPS(int* frames, struct timeval* last) {
         last_fps = (*frames) / elapsed;
         *frames = 0;
         *last = now;
+    } if (elapsed >= (1.f / pow(2, (double)(*application)->level))) {
+        moveTetrimino((*application)->gui, (*application)->elementList, (*application)->tetrimino, 0, 1);
+    } if (elapsed >= 0.016) {
+        erase();
+        displayMap((*application)->gui);
+        displayElementList((*application)->gui, (*application)->tetrimino->elementList);
+        displayElementList((*application)->gui, (*application)->elementList);
+        mvprintw(0, 0, "TPS: %.2f", last_fps);
     }
-    mvprintw(0, 0, "FPS: %.2f", last_fps);
 }
 
 void run(struct Application** application) {
     createRandomTetrimino(&(*application)->tetrimino);
     getWindowSize((*application)->gui);
 
-    struct timeval last;
-    gettimeofday(&last, NULL);
+    struct timeval lastFrame, dropTime;
+    gettimeofday(&lastFrame, NULL);
     int frames = 0;
 
     while (!handleInputs(&(*application))) {
         frames++;
         checkPlaceTetrimino((*application)->gui, &(*application)->elementList, &(*application)->tetrimino);
-        erase();
-        displayMap((*application)->gui);
-        displayElementList((*application)->gui, (*application)->tetrimino->elementList);
-        displayElementList((*application)->gui, (*application)->elementList);
-        displayFPS(&frames, &last);
+        display(&(*application), &frames, &lastFrame);
         wnoutrefresh(stdscr);
         doupdate();
     }

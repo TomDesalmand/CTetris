@@ -12,10 +12,6 @@
 #include <stdbool.h>
 
 // Movement keys //
-#define UP 119 // w //
-#define DOWN 115 // s //
-#define LEFT 97 // a //
-#define RIGHT 100 // d //
 #define ROTATE 32 // spacebar //
 // GUI keys //
 #define QUIT 113 // q //
@@ -24,6 +20,7 @@ struct Application {
     struct GUI* gui;
     struct Element* elementList;
     struct Tetrimino* tetrimino;
+    int level;
 };
 
 // Application

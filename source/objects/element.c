@@ -21,11 +21,18 @@ struct Element* createElement(int x, int y, int color) {
 }
 
 void displayElementList(struct GUI* gui, struct Element* elementList) {
+    int mapDisplayWidth = gui->mapWidth * 2;
+    int startY = gui->windowHeight / 2 - gui->mapHeight / 2;
+    int startX = gui->windowWidth / 2 - mapDisplayWidth / 2;
+    int leftBound = 1 - (gui->mapWidth / 2);
+
     struct Element* tmp = elementList;
     while (tmp != NULL) {
-        attron(COLOR_PAIR(tmp->color));
-        mvaddstr(gui->windowHeight / 2 - gui->mapHeight / 2 + tmp->y, gui->windowWidth / 2 - 1 + tmp->x, "■");
-        attroff(COLOR_PAIR(tmp->color));
+        int screenX = startX + (tmp->x - leftBound) * 2;
+        int screenY = startY + tmp->y;
+        chtype block = ' ' | COLOR_PAIR(tmp->color) | A_REVERSE;
+        mvaddch(screenY, screenX, block);
+        mvaddch(screenY, screenX + 1, block);
         tmp = tmp->next;
     }
 }
