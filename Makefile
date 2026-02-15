@@ -10,7 +10,7 @@ ifeq ($(UNAME_S), Darwin)
 	LDFLAGS := -lncurses -L/opt/homebrew/lib -L/usr/local/lib
 	CPPFLAGS += -I/opt/homebrew/include -I/usr/local/include
 else
-	LDFLAGS  := -lncurses
+	LDFLAGS  := -lncurses -lm
 endif
 
 # CPPFLAGS += $(addprefix -I,$(INCLUDE_DIRS))
