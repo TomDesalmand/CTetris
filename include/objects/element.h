@@ -16,10 +16,13 @@ struct Element {
 
 struct Element* createElement(int x, int y, int color);
 void displayElementList(struct GUI* gui, struct Element* elementList);
+void displayNextElementList(struct GUI* gui, struct Element* elementList);
 void appendElement(struct Element** elementList, struct Element** newElement);
 void appendTetrominoElements(struct Element** elementList, struct Element** tetrominoElementList);
 void freeElementList(struct Element** elementList);
 bool checkElementExist(struct Element* elementList, int x, int y);
 void deleteRow(struct Element** elementList, int y);
 void moveRowsDown(struct Element** elementList, int y);
-void checkRow(struct GUI* gui, struct Element** elementList);
+void flashAndDeleteRows(struct GUI* gui, struct Element** elementList);
+int getElementListMaxWidth(struct Element* elementList);
+int getElementListMaxHeight(struct Element* elementList);

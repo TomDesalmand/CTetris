@@ -181,17 +181,18 @@ void freeTetrimino(struct Tetrimino** tetrimino) {
     (*tetrimino) = NULL;
 }
 
-void checkPlaceTetrimino(struct GUI* gui, struct Element** elementList, struct Tetrimino** tetrimino) {
+bool checkPlaceTetrimino(struct GUI* gui, struct Element** elementList, struct Tetrimino** tetrimino, struct Tetrimino** nextTetrimino) {
     struct Element* tmp = (*tetrimino)->elementList;
     while (tmp != NULL) {
         if (tmp->y + 1 == gui->mapHeight || checkElementExist((*elementList), tmp->x, tmp->y + 1)) {
             appendTetrominoElements(&(*elementList), &(*tetrimino)->elementList);
-            checkRow(&(*gui), &(*elementList));
-            createRandomTetrimino(&(*tetrimino));
-            return;
+            appendTetrominoElements(&(*tetrimino)->elementList, &(*nextTetrimino)->elementList);
+            createRandomTetrimino(&(*nextTetrimino));
+            return true;
         }
         tmp = tmp->next;
     }
+    return false;
 }
 
 void createRandomTetrimino(struct Tetrimino** tetrimino) {

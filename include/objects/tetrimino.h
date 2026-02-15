@@ -26,7 +26,7 @@ static const PieceDef PIECES[] = {
     { "assets/teewee.tetrimino",       5 }, // T -> magenta
 };
 
-void checkPlaceTetrimino(struct GUI* gui, struct Element** elementList, struct Tetrimino** tetrimino);
+bool checkPlaceTetrimino(struct GUI* gui, struct Element** elementList, struct Tetrimino** tetrimino, struct Tetrimino** nexTetrimino);
 void createTetriminoFromFile(struct Tetrimino** tetrimino, const char* asset_path, int color);
 void createRandomTetrimino(struct Tetrimino** tetrimino);
 void moveTetrimino(struct GUI* gui, struct Element* elementList, struct Tetrimino *tetrimino, int x, int y);

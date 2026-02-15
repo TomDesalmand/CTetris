@@ -27,6 +27,7 @@ void initColor(void) {
     init_pair(5, COLOR_MAGENTA, COLOR_BLACK);
     init_pair(6, COLOR_CYAN, COLOR_BLACK);
     init_pair(7, COLOR_WHITE, COLOR_BLACK);
+    init_pair(8, COLOR_WHITE, COLOR_WHITE);
 }
 
 bool initApplicationStructures(struct Application** application) {
@@ -83,14 +84,17 @@ void display(struct Application** application, int* frames, struct timeval* last
     } if (elapsed >= 0.016) {
         erase();
         displayMap((*application)->gui);
+        displayNextTetriminoBox((*application)->gui);
         displayElementList((*application)->gui, (*application)->tetrimino->elementList);
         displayElementList((*application)->gui, (*application)->elementList);
+        displayNextElementList((*application)->gui, (*application)->nextTetrimino->elementList);
         mvprintw(0, 0, "TPS: %.2f", last_fps);
     }
 }
 
 void run(struct Application** application) {
     createRandomTetrimino(&(*application)->tetrimino);
+    createRandomTetrimino(&(*application)->nextTetrimino);
     getWindowSize((*application)->gui);
 
     struct timeval lastFrame, dropTime;
@@ -99,10 +103,12 @@ void run(struct Application** application) {
 
     while (!handleInputs(&(*application))) {
         frames++;
-        checkPlaceTetrimino((*application)->gui, &(*application)->elementList, &(*application)->tetrimino);
         display(&(*application), &frames, &lastFrame);
         wnoutrefresh(stdscr);
         doupdate();
+        if (checkPlaceTetrimino((*application)->gui, &(*application)->elementList, &(*application)->tetrimino, &(*application)->nextTetrimino)) {
+            flashAndDeleteRows((*application)->gui, &(*application)->elementList);
+        }
     }
 }
 
@@ -123,6 +129,7 @@ void endApplication(void) {
 void freeApplicationStructures(struct Application** application) {
     freeElementList(&(*application)->elementList);
     freeTetrimino(&(*application)->tetrimino);
+    freeTetrimino(&(*application)->nextTetrimino);
     free((*application)->gui);
     free(*application);
     *application = NULL;

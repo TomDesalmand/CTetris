@@ -37,6 +37,22 @@ void displayElementList(struct GUI* gui, struct Element* elementList) {
     }
 }
 
+void displayNextElementList(struct GUI* gui, struct Element* elementList) {
+    int mapDisplayWidth = gui->mapWidth * 2;
+    int startY = gui->windowHeight / 2 - gui->mapHeight / 2;
+    int startX = gui->windowWidth / 2 + mapDisplayWidth / 2;
+    
+    struct Element* tmp = elementList;
+    while (tmp != NULL) {
+        int screenX = startX + (tmp->x) * 2 + 10;
+        int screenY = startY + tmp->y + 2;
+        chtype block = ' ' | COLOR_PAIR(tmp->color) | A_REVERSE;
+        mvaddch(screenY - getElementListMaxHeight(elementList) / 2, screenX - getElementListMaxWidth(elementList) / 2, block);
+        mvaddch(screenY - getElementListMaxHeight(elementList) / 2, screenX - getElementListMaxWidth(elementList) / 2 + 1, block);
+        tmp = tmp->next;
+    }
+}
+
 void appendElement(struct Element** elementList, struct Element** newElement) {
     struct Element* tmp = (*elementList);
     // If the game element list is empty then we change the pointer 
@@ -132,22 +148,109 @@ void moveRowsDown(struct Element** elementList, int y) {
     }
 }
 
-void checkRow(struct GUI* gui, struct Element** elementList) {
+int getElementListMaxWidth(struct Element* elementList) {
+    if (elementList == NULL) {
+        return 0;
+    }
+    int minX = elementList->x;
+    int maxX = elementList->x;
+    struct Element* tmp = elementList->next;
+    while (tmp != NULL) {
+        if (tmp->x < minX) {
+            minX = tmp->x;
+        }
+        if (tmp->x > maxX) {
+            maxX = tmp->x;
+        }
+        tmp = tmp->next;
+    }
+    return maxX - minX + 1;
+}
+
+int getElementListMaxHeight(struct Element* elementList) {
+    if (elementList == NULL) {
+        return 0;
+    }
+    int minY = elementList->y;
+    int maxY = elementList->y;
+    struct Element* tmp = elementList->next;
+    while (tmp != NULL) {
+        if (tmp->y < minY) {
+            minY = tmp->y;
+        }
+        if (tmp->y > maxY) {
+            maxY = tmp->y;
+        }
+        tmp = tmp->next;
+    }
+    return maxY - minY + 1;
+}
+
+static void drawRowElements(struct GUI* gui, struct Element* elementList, int* rows, int rowCount, int colorOverride) {
+    int mapDisplayWidth = gui->mapWidth * 2;
+    int startY = gui->windowHeight / 2 - gui->mapHeight / 2;
+    int startX = gui->windowWidth / 2 - mapDisplayWidth / 2;
     int leftBound = 1 - (gui->mapWidth / 2);
-    int rightBound = 1 + (gui->mapWidth / 2);
-    for (int y = gui->mapHeight - 1; y >= 0; y--) {
-        bool shouldDeleteRow = true;
-        for (int x = leftBound; x <= rightBound; x++) {
-            if (!checkElementExist((*elementList), x, y)) {
-                shouldDeleteRow = false;
+
+    struct Element* tmp = elementList;
+    while (tmp != NULL) {
+        for (int i = 0; i < rowCount; i++) {
+            if (tmp->y == rows[i]) {
+                int screenX = startX + (tmp->x - leftBound) * 2;
+                int screenY = startY + tmp->y;
+                chtype block = colorOverride
+                    ? (' ' | COLOR_PAIR(colorOverride))
+                    : (' ' | COLOR_PAIR(tmp->color) | A_REVERSE);
+                mvaddch(screenY, screenX, block);
+                mvaddch(screenY, screenX + 1, block);
                 break;
             }
         }
-        if (shouldDeleteRow) {
-            deleteRow(&(*elementList), y);
-            moveRowsDown(&(*elementList), y);
-            // Re-check the same y after shifting above rows down
-            y++;
+        tmp = tmp->next;
+    }
+}
+
+static void flashRows(struct GUI* gui, struct Element* elementList, int* rows, int rowCount) {
+    for (int flash = 0; flash < 3; flash++) {
+        drawRowElements(gui, elementList, rows, rowCount, 8);
+        refresh();
+        napms(150);
+        drawRowElements(gui, elementList, rows, rowCount, 0);
+        refresh();
+        napms(150);
+    }
+}
+
+void flashAndDeleteRows(struct GUI* gui, struct Element** elementList) {
+    int leftBound = 1 - (gui->mapWidth / 2);
+    int rightBound = 1 + (gui->mapWidth / 2);
+    int completeRows[gui->mapHeight];
+    int completeRowCount = 0;
+    for (int y = gui->mapHeight - 1; y >= 0; y--) {
+        bool isComplete = true;
+        for (int x = leftBound; x <= rightBound; x++) {
+            if (!checkElementExist((*elementList), x, y)) {
+                isComplete = false;
+                break;
+            }
+        }
+        if (isComplete) {
+            completeRows[completeRowCount++] = y;
+        }
+    }
+
+    if (completeRowCount == 0) {
+        return;
+    }
+
+    // Flash the complete rows before deleting them
+    flashRows(gui, *elementList, completeRows, completeRowCount);
+    for (int i = 0; i < completeRowCount; i++) {
+        deleteRow(elementList, completeRows[i]);
+        moveRowsDown(elementList, completeRows[i]);
+        // Rows above the deleted one shifted down, adjust remaining entries
+        for (int j = i + 1; j < completeRowCount; j++) {
+            completeRows[j]++;
         }
     }
 }
