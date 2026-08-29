@@ -21,7 +21,6 @@ struct Application {
     struct Element* elementList;
     struct Tetrimino* tetrimino;
     struct Tetrimino* nextTetrimino;
-    int level;
 };
 
 // Application

@@ -41,11 +41,11 @@ void displayNextElementList(struct GUI* gui, struct Element* elementList) {
     int mapDisplayWidth = gui->mapWidth * 2;
     int startY = gui->windowHeight / 2 - gui->mapHeight / 2;
     int startX = gui->windowWidth / 2 + mapDisplayWidth / 2;
-    
+
     struct Element* tmp = elementList;
     while (tmp != NULL) {
         int screenX = startX + (tmp->x) * 2 + 10;
-        int screenY = startY + tmp->y + 2;
+        int screenY = startY + 4 + tmp->y + 3;
         chtype block = ' ' | COLOR_PAIR(tmp->color) | A_REVERSE;
         mvaddch(screenY - getElementListMaxHeight(elementList) / 2, screenX - getElementListMaxWidth(elementList) / 2, block);
         mvaddch(screenY - getElementListMaxHeight(elementList) / 2, screenX - getElementListMaxWidth(elementList) / 2 + 1, block);
@@ -55,7 +55,7 @@ void displayNextElementList(struct GUI* gui, struct Element* elementList) {
 
 void appendElement(struct Element** elementList, struct Element** newElement) {
     struct Element* tmp = (*elementList);
-    // If the game element list is empty then we change the pointer 
+    // If the game element list is empty then we change the pointer
     // to point to the new element to initialize it.
     if ((*elementList) == NULL) {
         (*elementList) = (*newElement);
@@ -71,7 +71,7 @@ void appendElement(struct Element** elementList, struct Element** newElement) {
 }
 
 void appendTetrominoElements(struct Element** elementList, struct Element** tetrominoElementList) {
-    // If the game element list is empty then we change the pointer 
+    // If the game element list is empty then we change the pointer
     // to point to the tetrimino element list to initialize it.
     if ((*elementList) == NULL) {
         (*elementList) = (*tetrominoElementList);
@@ -221,12 +221,12 @@ static void flashRows(struct GUI* gui, struct Element* elementList, int* rows, i
     }
 }
 
-void flashAndDeleteRows(struct GUI* gui, struct Element** elementList) {
-    int leftBound = 1 - (gui->mapWidth / 2);
-    int rightBound = 1 + (gui->mapWidth / 2);
-    int completeRows[gui->mapHeight];
+void flashAndDeleteRows(struct GUI** gui, struct Element** elementList) {
+    int leftBound = 1 - ((*gui)->mapWidth / 2);
+    int rightBound = 1 + ((*gui)->mapWidth / 2);
+    int completeRows[(*gui)->mapHeight];
     int completeRowCount = 0;
-    for (int y = gui->mapHeight - 1; y >= 0; y--) {
+    for (int y = (*gui)->mapHeight - 1; y >= 0; y--) {
         bool isComplete = true;
         for (int x = leftBound; x <= rightBound; x++) {
             if (!checkElementExist((*elementList), x, y)) {
@@ -244,7 +244,8 @@ void flashAndDeleteRows(struct GUI* gui, struct Element** elementList) {
     }
 
     // Flash the complete rows before deleting them
-    flashRows(gui, *elementList, completeRows, completeRowCount);
+    flashRows((*gui), *elementList, completeRows, completeRowCount);
+    (*gui)->score += completeRowCount * 100;
     for (int i = 0; i < completeRowCount; i++) {
         deleteRow(elementList, completeRows[i]);
         moveRowsDown(elementList, completeRows[i]);

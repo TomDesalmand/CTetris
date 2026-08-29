@@ -23,6 +23,6 @@ void freeElementList(struct Element** elementList);
 bool checkElementExist(struct Element* elementList, int x, int y);
 void deleteRow(struct Element** elementList, int y);
 void moveRowsDown(struct Element** elementList, int y);
-void flashAndDeleteRows(struct GUI* gui, struct Element** elementList);
+void flashAndDeleteRows(struct GUI** gui, struct Element** elementList);
 int getElementListMaxWidth(struct Element* elementList);
 int getElementListMaxHeight(struct Element* elementList);
